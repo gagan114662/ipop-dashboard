@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ipop",
+  "name": "ipop-ai-designgaga",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-16",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -8,7 +8,17 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "kv_namespaces": [
+    {
+      "binding": "IPOP_KV",
+      "id": "0ecc8be2a2b54d9ca1e8c8f22c25c7f7"
+    }
+  ],
   "observability": {
     "enabled": true
-  }
+  },
+  "routes": [
+    { "pattern": "ipop.ai/*", "zone_name": "ipop.ai" },
+    { "pattern": "www.ipop.ai/*", "zone_name": "ipop.ai" }
+  ]
 }

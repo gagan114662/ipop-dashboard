@@ -1,5 +1,11 @@
 import ActivityFeed from "@/components/ActivityFeed";
+import StatusGrid from "@/components/StatusGrid";
+import RevenueTile from "@/components/RevenueTile";
+import GoalsChecklist from "@/components/GoalsChecklist";
+import OverseerChat from "@/components/OverseerChat";
 import { getEvents } from "@/lib/events";
+import { getStatus } from "@/lib/status";
+import { getRevenue } from "@/lib/revenue";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +40,7 @@ const STATS = [
 ];
 
 export default async function Home() {
-  const events = getEvents();
+  const [events, status, revenue] = await Promise.all([getEvents(), getStatus(), getRevenue()]);
 
   return (
     <div className="relative flex-1">
@@ -46,6 +52,7 @@ export default async function Home() {
           <span className="font-mono text-sm tracking-widest text-foreground">IPOP</span>
         </div>
         <nav className="hidden gap-8 text-sm text-muted sm:flex">
+          <a href="#dashboard" className="hover:text-foreground">Dashboard</a>
           <a href="#how" className="hover:text-foreground">How it works</a>
           <a href="#feed" className="hover:text-foreground">Live feed</a>
           <a href="#bridge" className="hover:text-foreground">The bridge</a>
@@ -75,7 +82,7 @@ export default async function Home() {
           </p>
           <div className="mt-9 flex flex-wrap gap-4">
             <a
-              href="#feed"
+              href="#dashboard"
               className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-[#04140b] hover:opacity-90"
             >
               Watch it live
@@ -86,6 +93,19 @@ export default async function Home() {
             >
               Wire up the bridge
             </a>
+          </div>
+        </section>
+
+        <section id="dashboard" className="pb-16">
+          <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+            <OverseerChat />
+            <div className="flex flex-col gap-6">
+              <RevenueTile initial={revenue} />
+              <GoalsChecklist />
+            </div>
+          </div>
+          <div className="mt-6">
+            <StatusGrid initial={status} />
           </div>
         </section>
 
@@ -126,20 +146,33 @@ export default async function Home() {
         <section id="bridge" className="py-24 sm:py-32">
           <h2 className="text-sm font-mono uppercase tracking-[0.2em] text-muted">The bridge</h2>
           <p className="mt-4 max-w-2xl text-muted">
-            Any agent can post a real decision onto this feed — no more waiting for a summary
-            after the fact. This deployment&apos;s bridge is demo-tier (in-memory, unauthenticated);
-            production use needs a per-agent token and durable storage behind it.
+            Any agent can post a real decision onto this dashboard — events, capability status,
+            revenue. Storage is durable (Cloudflare KV, survives redeploys). Writes require a
+            bearer token (<code className="text-foreground">Authorization: Bearer &lt;token&gt;</code>,
+            configured server-side as <code className="text-foreground">BRIDGE_TOKEN</code>) — reads
+            stay public so the dashboard works without one.
           </p>
           <pre className="mt-6 overflow-x-auto rounded-2xl border border-panel-border bg-panel p-5 text-sm text-foreground">
             <code>{`curl -X POST https://ipop.ai/api/events \\
   -H "content-type: application/json" \\
+  -H "authorization: Bearer $IPOP_BRIDGE_TOKEN" \\
   -d '{
     "kind": "outreach_gate",
     "status": "blocked",
     "title": "Duplicate send excluded",
     "detail": "Already sent under this campaign_id",
     "agent": "tools:outreach_safety"
-  }'`}</code>
+  }'
+
+curl -X POST https://ipop.ai/api/status \\
+  -H "content-type: application/json" \\
+  -H "authorization: Bearer $IPOP_BRIDGE_TOKEN" \\
+  -d '{"key": "browser", "state": "working", "detail": "QA pass on ipop.ai"}'
+
+curl -X POST https://ipop.ai/api/revenue \\
+  -H "content-type: application/json" \\
+  -H "authorization: Bearer $IPOP_BRIDGE_TOKEN" \\
+  -d '{"amountCents": 128400, "currency": "USD", "note": "Stripe, MTD"}'`}</code>
           </pre>
         </section>
       </main>

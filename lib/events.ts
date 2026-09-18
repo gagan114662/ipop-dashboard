@@ -115,25 +115,26 @@ export function seedEvents(now: number): AgentEvent[] {
   return events.sort((a, b) => b.ts - a.ts);
 }
 
-// In-memory, single-instance store — resets on redeploy/cold start. This is the
-// demo-tier "bridge": a real deployment would back this with a durable store keyed
-// by ingest token per source agent.
-declare global {
-  // eslint-disable-next-line no-var
-  var __ipopEvents: AgentEvent[] | undefined;
+// Durable KV-backed store (survives redeploys/cold starts) — one JSON array
+// under a single key, bounded to the most recent 200 events. Small enough at
+// this scale that a single key is simpler and more consistent than KV's
+// eventually-consistent list() API.
+import { kvGetJSON, kvSetJSON } from "./cf";
+
+const KV_KEY = "events";
+
+export async function getEvents(): Promise<AgentEvent[]> {
+  const events = await kvGetJSON<AgentEvent[] | null>(KV_KEY, null);
+  if (events) return events;
+  const seeded = seedEvents(Date.now());
+  await kvSetJSON(KV_KEY, seeded);
+  return seeded;
 }
 
-export function getEvents(): AgentEvent[] {
-  if (!globalThis.__ipopEvents) {
-    globalThis.__ipopEvents = seedEvents(Date.now());
-  }
-  return globalThis.__ipopEvents;
-}
-
-export function pushEvent(input: Omit<AgentEvent, "id" | "ts">): AgentEvent {
-  const events = getEvents();
+export async function pushEvent(input: Omit<AgentEvent, "id" | "ts">): Promise<AgentEvent> {
+  const events = await getEvents();
   const event: AgentEvent = { ...input, id: id(), ts: Date.now() };
-  events.unshift(event);
-  events.length = Math.min(events.length, 200);
+  const next = [event, ...events].slice(0, 200);
+  await kvSetJSON(KV_KEY, next);
   return event;
 }

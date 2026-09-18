@@ -1,21 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEvents, pushEvent, type EventKind, type EventStatus } from "@/lib/events";
+import { requireBridgeToken } from "@/lib/cf";
 
 export const dynamic = "force-dynamic";
 
 const KINDS: EventKind[] = ["triage", "oversight_review", "outreach_gate", "heartbeat", "finance"];
 const STATUSES: EventStatus[] = ["ok", "flagged", "blocked"];
 
-// GET returns the current feed (newest first). POST is "the bridge": any agent
-// (e.g. the hermes-agent oversight-review job) can push a real event here.
-// Demo-tier: in-memory, unauthenticated, single-instance. A production bridge
-// needs a per-source ingest token and durable storage before real agents write to it.
+// GET returns the current feed (newest first), no auth required — it's a public
+// read-only dashboard. POST is "the bridge": any agent (e.g. the hermes-agent
+// oversight-review job) can push a real event here, gated by a bearer token
+// (wrangler secret put BRIDGE_TOKEN). Storage is durable (Cloudflare KV).
 export async function GET(req: NextRequest) {
   const limit = Math.max(1, Math.min(200, Number(req.nextUrl.searchParams.get("limit")) || 50));
-  return NextResponse.json({ events: getEvents().slice(0, limit) });
+  const events = await getEvents();
+  return NextResponse.json({ events: events.slice(0, limit) });
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireBridgeToken(req);
+  if (denied) return denied;
+
   let body: unknown;
   try {
     body = await req.json();
@@ -38,7 +43,7 @@ export async function POST(req: NextRequest) {
   if (typeof title !== "string" || !title.trim()) {
     return NextResponse.json({ error: "title is required" }, { status: 400 });
   }
-  const event = pushEvent({
+  const event = await pushEvent({
     kind: kind as EventKind,
     status: status as EventStatus,
     title: title.trim(),
