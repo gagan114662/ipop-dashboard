@@ -15,31 +15,31 @@ export interface Goal {
 const STATIC_GOALS: Goal[] = [
   {
     id: "triage-gate",
-    label: "Cheap triage gate on cron monitors",
+    label: "Doesn't wake anyone up for nothing",
     done: true,
     detail: "tools/triage/cheap_classifier.py — fails closed to 0.5 on backend error",
   },
   {
     id: "finance-reconciliation",
-    label: "Decimal-exact money-math reconciliation",
+    label: "Never fumbles the maths",
     done: true,
     detail: "hermes_cli/finance/decimal_reconciliation.py — rejects raw float outright",
   },
   {
     id: "outreach-gate",
-    label: "Verified-directory + dedupe gate for campaign sends",
+    label: "Never sends the same message twice",
     done: true,
     detail: "tools/outreach_safety.py, wired through hermes send --campaign-id",
   },
   {
     id: "oversight-review",
-    label: "Oversight-review job over kanban tasks",
+    label: "Checks finished work for fibs",
     done: true,
     detail: "cron/scripts/oversight_review.py — flags, never auto-closes",
   },
   {
     id: "verified-scheduling",
-    label: "Verified-scheduling heartbeat check",
+    label: "Proves it's actually still awake",
     done: true,
     detail: "Proves a cron job fires from real execution history, not just config",
   },
@@ -53,7 +53,7 @@ export async function getGoals(): Promise<Goal[]> {
     ...STATIC_GOALS,
     {
       id: LIVE_BRIDGE_GOAL_ID,
-      label: "Wire a real agent to push live events to this dashboard",
+      label: used ? "A real AI just said hello!" : "Waiting to hear from a real AI",
       done: used,
       detail: used
         ? "Confirmed: at least one authenticated bridge write has landed in KV"

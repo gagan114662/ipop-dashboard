@@ -50,7 +50,7 @@ function answerFromData(question: string, ctx: Ctx): string | null {
     return status.map((c) => `${c.label}: ${c.state} — ${c.detail}`).join("\n");
   }
 
-  if (/goal/.test(q)) {
+  if (/(goal|how'?s it going|how is it going)/.test(q)) {
     const done = goals.filter((g) => g.done).length;
     return `${done}/${goals.length} goals done.\n` + goals.map((g) => `[${g.done ? "x" : " "}] ${g.label}`).join("\n");
   }

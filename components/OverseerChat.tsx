@@ -8,10 +8,10 @@ interface Message {
 }
 
 const SUGGESTIONS = [
-  "What's flagged right now?",
-  "Draft a marketing email for ipop",
-  "What can you actually do?",
-  "Goals progress?",
+  "What's gone wrong lately?",
+  "Write me something",
+  "What are you actually for?",
+  "How's it going?",
 ];
 
 export default function OverseerChat() {
@@ -19,7 +19,7 @@ export default function OverseerChat() {
     {
       role: "overseer",
       text:
-        "Ask me about this deployment's real data (what's flagged, capability status, goals) and I'll answer straight from it. Ask me to draft or explain something else and a real model answers — honestly, including when it can't do what you asked.",
+        "Hiya. Ask me what's going on and I'll tell you straight — no spin. Ask me to write something and I'll actually try, and I'll say so if I can't.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -74,7 +74,7 @@ export default function OverseerChat() {
       <div className="flex items-center gap-2 border-b border-panel-border px-5 py-3.5">
         <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" aria-hidden />
         <span className="text-sm font-medium text-foreground">Overseer</span>
-        <span className="ml-auto text-[11px] font-mono text-muted">real data + a real model</span>
+        <span className="ml-auto text-[11px] font-mono text-muted">always tells the truth</span>
       </div>
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
         {messages.map((m, i) => (

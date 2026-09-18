@@ -41,7 +41,14 @@ export default function GoalsChecklist({ initial }: { initial: Goal[] }) {
             </span>
             <div>
               <div className={`text-sm ${g.done ? "text-foreground" : "text-muted"}`}>{g.label}</div>
-              <div className="text-xs text-muted/80">{g.detail}</div>
+              {g.detail && (
+                <details className="mt-0.5">
+                  <summary className="cursor-pointer select-none text-[11px] text-muted/60 hover:text-muted">
+                    the techy bit
+                  </summary>
+                  <div className="mt-1 font-mono text-[11px] text-muted/80">{g.detail}</div>
+                </details>
+              )}
             </div>
           </li>
         ))}

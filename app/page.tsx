@@ -78,30 +78,30 @@ export default async function Home() {
       <main className="relative mx-auto max-w-6xl px-6">
         <section className="py-20 sm:py-28">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-            oversight for autonomous work
+            keeping half an eye on your ai
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-tight text-foreground sm:text-6xl">
-            Let your agent run the business.
+            Let your AI get on with it.
             <br />
-            Let something else watch it.
+            We&apos;ll make sure it behaves.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted">
-            ipop is an oversight layer for agents that spend money, message people, and close
-            work unattended — a triage gate, a spend reconciler, an outreach guardrail, and a
-            review loop that flags mistakes instead of hiding them.
+            Some AIs are let loose to spend money, send messages, and finish whole jobs by
+            themselves. Brilliant — until it isn&apos;t. ipop keeps watch, catches the slip-ups
+            before they matter, and always tells you the truth about what really happened.
           </p>
           <div className="mt-9 flex flex-wrap gap-4">
             <a
               href="#dashboard"
               className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-[#04140b] hover:opacity-90"
             >
-              Watch it live
+              See it in action
             </a>
             <a
               href="#bridge"
               className="rounded-full border border-panel-border px-6 py-3 text-sm text-foreground hover:border-accent-dim"
             >
-              Wire up the bridge
+              Plug in your AI
             </a>
           </div>
         </section>
