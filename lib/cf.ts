@@ -41,5 +41,20 @@ export async function requireBridgeToken(req: Request): Promise<Response | null>
   if (!provided || provided !== expected) {
     return Response.json({ error: "unauthorized: missing or invalid bearer token" }, { status: 401 });
   }
+  await markBridgeUsed();
   return null;
+}
+
+/** Set once any authenticated bridge write succeeds — lets the goals list
+ * honestly reflect "a real write happened", not just "the code exists". */
+async function markBridgeUsed(): Promise<void> {
+  const { env } = await getCloudflareContext({ async: true });
+  const already = await env.IPOP_KV.get("bridge_used");
+  if (already) return;
+  await env.IPOP_KV.put("bridge_used", JSON.stringify({ at: Date.now() }));
+}
+
+export async function isBridgeUsed(): Promise<boolean> {
+  const { env } = await getCloudflareContext({ async: true });
+  return Boolean(await env.IPOP_KV.get("bridge_used"));
 }

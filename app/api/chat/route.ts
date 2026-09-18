@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getEvents, KIND_LABEL } from "@/lib/events";
 import { getStatus } from "@/lib/status";
 import { getRevenue } from "@/lib/revenue";
-import { GOALS } from "@/lib/goals";
+import { getGoals } from "@/lib/goals";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +15,10 @@ function summarize(question: string, ctx: {
   events: Awaited<ReturnType<typeof getEvents>>;
   status: Awaited<ReturnType<typeof getStatus>>;
   revenue: Awaited<ReturnType<typeof getRevenue>>;
+  goals: Awaited<ReturnType<typeof getGoals>>;
 }): string {
   const q = question.toLowerCase();
-  const { events, status, revenue } = ctx;
+  const { events, status, revenue, goals } = ctx;
 
   if (/(flag|block|problem|issue|wrong|mistake)/.test(q)) {
     const flagged = events.filter((e) => e.status !== "ok").slice(0, 5);
@@ -43,8 +44,8 @@ function summarize(question: string, ctx: {
   }
 
   if (/goal/.test(q)) {
-    const done = GOALS.filter((g) => g.done).length;
-    return `${done}/${GOALS.length} goals done.\n` + GOALS.map((g) => `[${g.done ? "x" : " "}] ${g.label}`).join("\n");
+    const done = goals.filter((g) => g.done).length;
+    return `${done}/${goals.length} goals done.\n` + goals.map((g) => `[${g.done ? "x" : " "}] ${g.label}`).join("\n");
   }
 
   if (!events.length) return "No agent activity recorded yet.";
@@ -73,7 +74,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "message is required" }, { status: 400 });
   }
 
-  const [events, status, revenue] = await Promise.all([getEvents(), getStatus(), getRevenue()]);
-  const reply = summarize(message, { events, status, revenue });
+  const [events, status, revenue, goals] = await Promise.all([
+    getEvents(),
+    getStatus(),
+    getRevenue(),
+    getGoals(),
+  ]);
+  const reply = summarize(message, { events, status, revenue, goals });
   return NextResponse.json({ reply });
 }

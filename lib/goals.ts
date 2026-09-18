@@ -1,3 +1,5 @@
+import { isBridgeUsed } from "./cf";
+
 export interface Goal {
   id: string;
   label: string;
@@ -7,7 +9,10 @@ export interface Goal {
 
 // Static, reflects real work actually shipped in hermes-agent this session —
 // not fabricated business goals. Update this list by hand as real milestones land.
-export const GOALS: Goal[] = [
+// The last goal is the one exception: it's computed from real bridge activity
+// (see getGoals below), not hand-set, so it only flips once an authenticated
+// write has actually happened.
+const STATIC_GOALS: Goal[] = [
   {
     id: "triage-gate",
     label: "Cheap triage gate on cron monitors",
@@ -38,10 +43,21 @@ export const GOALS: Goal[] = [
     done: true,
     detail: "Proves a cron job fires from real execution history, not just config",
   },
-  {
-    id: "live-bridge",
-    label: "Wire a real agent to push live events to this dashboard",
-    done: false,
-    detail: "Bridge is production-ready (KV + bearer token) — needs a real pusher",
-  },
 ];
+
+const LIVE_BRIDGE_GOAL_ID = "live-bridge";
+
+export async function getGoals(): Promise<Goal[]> {
+  const used = await isBridgeUsed();
+  return [
+    ...STATIC_GOALS,
+    {
+      id: LIVE_BRIDGE_GOAL_ID,
+      label: "Wire a real agent to push live events to this dashboard",
+      done: used,
+      detail: used
+        ? "Confirmed: at least one authenticated bridge write has landed in KV"
+        : "Bridge is production-ready (KV + bearer token) — waiting on the first authenticated write",
+    },
+  ];
+}

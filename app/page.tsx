@@ -1,4 +1,5 @@
 import ActivityFeed from "@/components/ActivityFeed";
+import MobileNav from "@/components/MobileNav";
 import StatusGrid from "@/components/StatusGrid";
 import RevenueTile from "@/components/RevenueTile";
 import GoalsChecklist from "@/components/GoalsChecklist";
@@ -6,6 +7,7 @@ import OverseerChat from "@/components/OverseerChat";
 import { getEvents } from "@/lib/events";
 import { getStatus } from "@/lib/status";
 import { getRevenue } from "@/lib/revenue";
+import { getGoals } from "@/lib/goals";
 
 export const dynamic = "force-dynamic";
 
@@ -40,13 +42,18 @@ const STATS = [
 ];
 
 export default async function Home() {
-  const [events, status, revenue] = await Promise.all([getEvents(), getStatus(), getRevenue()]);
+  const [events, status, revenue, goals] = await Promise.all([
+    getEvents(),
+    getStatus(),
+    getRevenue(),
+    getGoals(),
+  ]);
 
   return (
     <div className="relative flex-1">
       <div className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_100%)]" />
 
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" aria-hidden />
           <span className="font-mono text-sm tracking-widest text-foreground">IPOP</span>
@@ -57,12 +64,15 @@ export default async function Home() {
           <a href="#feed" className="hover:text-foreground">Live feed</a>
           <a href="#bridge" className="hover:text-foreground">The bridge</a>
         </nav>
-        <a
-          href="#bridge"
-          className="rounded-full border border-panel-border bg-panel px-4 py-1.5 text-sm text-foreground hover:border-accent-dim"
-        >
-          Connect an agent
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="#bridge"
+            className="rounded-full border border-panel-border bg-panel px-4 py-1.5 text-sm text-foreground hover:border-accent-dim"
+          >
+            Connect an agent
+          </a>
+          <MobileNav />
+        </div>
       </header>
 
       <main className="relative mx-auto max-w-6xl px-6">
@@ -101,7 +111,7 @@ export default async function Home() {
             <OverseerChat />
             <div className="flex flex-col gap-6">
               <RevenueTile initial={revenue} />
-              <GoalsChecklist />
+              <GoalsChecklist initial={goals} />
             </div>
           </div>
           <div className="mt-6">
