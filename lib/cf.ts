@@ -4,6 +4,7 @@ declare global {
   interface CloudflareEnv {
     IPOP_KV: KVNamespace;
     BRIDGE_TOKEN?: string;
+    AI: Ai;
   }
 }
 

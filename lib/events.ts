@@ -3,7 +3,8 @@ export type EventKind =
   | "oversight_review"
   | "outreach_gate"
   | "heartbeat"
-  | "finance";
+  | "finance"
+  | "watcher";
 
 export type EventStatus = "ok" | "flagged" | "blocked";
 
@@ -23,6 +24,7 @@ export const KIND_LABEL: Record<EventKind, string> = {
   outreach_gate: "Outreach guardrail",
   heartbeat: "Verified scheduling",
   finance: "Spend reconciliation",
+  watcher: "Live watcher",
 };
 
 const STATUS_STYLE: Record<EventStatus, { dot: string; text: string; label: string }> = {

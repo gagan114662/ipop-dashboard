@@ -4,7 +4,7 @@ import { requireBridgeToken } from "@/lib/cf";
 
 export const dynamic = "force-dynamic";
 
-const KINDS: EventKind[] = ["triage", "oversight_review", "outreach_gate", "heartbeat", "finance"];
+const KINDS: EventKind[] = ["triage", "oversight_review", "outreach_gate", "heartbeat", "finance", "watcher"];
 const STATUSES: EventStatus[] = ["ok", "flagged", "blocked"];
 
 // GET returns the current feed (newest first), no auth required — it's a public
